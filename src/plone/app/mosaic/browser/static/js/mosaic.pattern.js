@@ -28,26 +28,21 @@ require([
   'mosaic-url/mosaic.layout',
   'mosaic-url/mosaic.toolbar',
   'mosaic-url/mosaic.actions',
-  'mosaic-url/mosaic.upload',
-  'mosaic-url/mosaic.editor',
-  'mosaic-url/mosaic.undo',
-  'mosaic-url/mosaic.overlay',
+  'mosaic-url/mosaic.editor'
 ], function($, Base) {
   'use strict';
 
-  var Layout = Base.extend({
+  return Base.extend({
     name: 'layout',
     trigger: '.pat-layout',
     parser: 'mockup',
     defaults: {
       attribute: 'class'
     },
-    init: function() {
+    init: function () {
       var self = this;
       self.options.data.$el = self.$el;
       $.mosaic.init({'data': self.options.data});
     }
   });
-
-  return Layout;
 });
