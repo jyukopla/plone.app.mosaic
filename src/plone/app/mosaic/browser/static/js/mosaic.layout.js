@@ -422,7 +422,7 @@ define([
           if ((dir === "left") || (dir === "right")) {
             var row = divider.parent().parent().parent();
 
-            if (row.children(".mosaic-grid-cell").length >= $('.mosaic-panel').data('max-columns')) {
+            if (row.children(".mosaic-grid-cell").length >= $('.mosaic-panel').attr('data-max-columns')) {
                 // This row already up to the max amount of columns allowed for this layout
                 // do not allow this item to be dropped alingside any elements in this row
                 return;
@@ -575,7 +575,8 @@ define([
         }
       });
 
-      if ($(this).find(".mosaic-grid-row").length === 0) {
+      if ($(this).find(".mosaic-grid-row").length === 0 &&
+          $(this).find(".mosaic-tile").length === 0) {
         $(this).append(
           $($.mosaic.document.createElement("div"))
             .addClass("mosaic-grid-row mosaic-empty-row")
@@ -773,25 +774,28 @@ define([
     divider.removeClass("mosaic-selected-divider");
 
     // True if new tile is inserted
-    var new_tile = $(".mosaic-helper-tile-new", $.mosaic.document).length > 0;
-    var original_tile = $(".mosaic-original-tile", $.mosaic.document);
+    var newTile = $(".mosaic-helper-tile-new", $.mosaic.document).length > 0;
+    var originalTile = $(".mosaic-original-tile", $.mosaic.document);
 
     // If divider is not found or not sane drop, act like esc is pressed
-    if (divider.length === 0 || drop.hasClass('mosaic-helper-tile')) {
-      original_tile.addClass("mosaic-drag-cancel");
+    if (divider.length === 0 ||
+        drop.hasClass('mosaic-helper-tile') ||
+        (drop.hasClass('mosaic-tile') &&
+         drop.parents('.mosaic-grid-row').length == 0)) {
+      originalTile.addClass("mosaic-drag-cancel");
     }
 
     // Check if esc is pressed
-    if (original_tile.hasClass("mosaic-drag-cancel")) {
+    if (originalTile.hasClass("mosaic-drag-cancel")) {
 
       // Remove cancel class
-      original_tile.removeClass("mosaic-drag-cancel");
+      originalTile.removeClass("mosaic-drag-cancel");
 
       // Check if new tile
-      if (!new_tile) {
+      if (!newTile) {
 
         // Make sure the original tile doesn't get removed
-        original_tile
+        originalTile
           .removeClass("mosaic-original-tile")
           .addClass("mosaic-new-tile");
       }
@@ -802,7 +806,7 @@ define([
       // Replace empty with normal row class
       drop
         .removeClass("mosaic-empty-row")
-        .attr('class', original_tile.parents('.mosaic-grid-row').first().attr('class'))
+        .attr('class', originalTile.parents('.mosaic-grid-row').first().attr('class'))
         .unbind('mousemove');
 
       // Clean cell
@@ -811,7 +815,7 @@ define([
 
       // Add tile to empty row
       drop.children(".mosaic-grid-cell")
-        .append(original_tile
+        .append(originalTile
           .clone(true)
           .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")
           .css({width: "", left: "", top: ""})
@@ -823,21 +827,21 @@ define([
     } else if (drop.hasClass("mosaic-tile") === false) {
 
       // Check if new tile
-      if (!new_tile) {
+      if (!newTile) {
 
         // Make sure the original tile doesn't get removed
-        original_tile
+        originalTile
           .removeClass("mosaic-original-tile")
           .addClass("mosaic-new-tile");
       }
     // Check if max columns rows is reached
-    } else if ((drop.parent().parent().children(".mosaic-grid-cell").length >= obj.data('max-columns')) && (dir === "left" || dir === "right")) {
+    } else if ((drop.parent().parent().children(".mosaic-grid-cell").length >= obj.attr('data-max-columns')) && (dir === "left" || dir === "right")) {
 
       // Check if new tile
-      if (!new_tile) {
+      if (!newTile) {
 
         // Make sure the original tile doesn't get removed
-        original_tile
+        originalTile
           .removeClass("mosaic-original-tile")
           .addClass("mosaic-new-tile");
       }
@@ -850,7 +854,7 @@ define([
 
         // Add tile before
         drop.before(
-          original_tile
+          originalTile
             .clone(true)
             .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")
             .css({width: "", left: "", top: ""})
@@ -863,7 +867,7 @@ define([
 
         // Add tile after
         drop.after(
-          original_tile
+          originalTile
             .clone(true)
             .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")
             .css({width: "", left: "", top: ""})
@@ -918,7 +922,7 @@ define([
               .before($($.mosaic.document.createElement("div"))
                 .addClass("mosaic-grid-cell mosaic-width-half mosaic-position-leftmost")
                 .append(
-                  original_tile
+                  originalTile
                     .clone(true)
                     .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")  // jshint ignore:line
                     .css({width: "", left: "", top: ""})
@@ -932,7 +936,7 @@ define([
               .after($($.mosaic.document.createElement("div"))
                 .addClass("mosaic-grid-cell mosaic-width-half mosaic-position-half")
                 .append(
-                  original_tile
+                  originalTile
                     .clone(true)
                     .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")  // jshint ignore:line
                     .css({width: "", left: "", top: ""})
@@ -954,7 +958,7 @@ define([
               .before($($.mosaic.document.createElement("div"))
                 .addClass("mosaic-grid-cell")
                 .append(
-                  original_tile
+                  originalTile
                     .clone(true)
                     .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")  // jshint ignore:line
                     .css({width: "", left: "", top: ""})
@@ -967,7 +971,7 @@ define([
               .after($($.mosaic.document.createElement("div"))
                 .addClass("mosaic-grid-cell")
                 .append(
-                  original_tile
+                  originalTile
                     .clone(true)
                     .removeClass("mosaic-original-tile mosaic-helper-tile mosaic-helper-tile-new mosaic-tile-align-right mosaic-tile-align-left")  // jshint ignore:line
                     .css({width: "", left: "", top: ""})
@@ -987,7 +991,7 @@ define([
     }
 
     // Remove original tile
-    var original_row = original_tile.parent().parent();
+    var originalRow = originalTile.parents('.mosaic-grid-row');
     $(".mosaic-original-tile", $.mosaic.document).remove();
 
     // Remove remaining empty rows
@@ -995,24 +999,29 @@ define([
     $.mosaic.options.panels.find(".mosaic-empty-row").remove();
 
     // Cleanup original row
-    original_row.mosaicCleanupRow();
+    originalRow.mosaicCleanupRow();
 
     // Add empty rows
     $.mosaic.options.panels.mosaicAddEmptyRows();
 
     var $tile = $(".mosaic-new-tile", $.mosaic.document);
     $tile.removeClass("mosaic-new-tile");
+    
+    // Break on cancelled drop
+    if ($tile.length === 0) {
+      return null;
+    }
 
     var tile = new Tile($tile);
 
-    var $content = original_tile.find('.mosaic-tile-content');
+    var $content = originalTile.find('.mosaic-tile-content');
     if($content.size() > 0 && $content[0]._preScanHTML){
       /* set the correct, pre-registry html so tiles render correctly */
       tile.cacheHtml($content[0]._preScanHTML);
     }
 
     // Re-init rich text editor after tile has been moved in DOM
-    if(!tile.isRichText()){
+    if (!tile.isRichText()) {
       tile.scanRegistry();
     }
 
@@ -1027,7 +1036,7 @@ define([
     tile.blur();
 
     // Select new tile
-    if (new_tile) {
+    if (newTile) {
       tile.focus();
     }
   };
@@ -1513,7 +1522,7 @@ define([
         // Update tile
         var $tile = $('.mosaic-selected-tile .mosaic-tile-content', $.mosaic.document);
         $tile.html(value.find('.temp_body_tag').html());  // jshint ignore:line
-        $tile.attr('data-tileUrl', url.replace(/&/gim, '&amp;'));
+        $tile.attr('data-tileurl', url.replace(/&/gim, '&amp;'));
       }
     });
   };
@@ -1524,33 +1533,44 @@ define([
    * @id jQuery.mosaic.addTile
    * @param {String} type Type of the application tile
    * @param {String} value Value of the application tile
+   * @param {String} url Url of the application tile
    */
-  $.mosaic.addTile = function (type, value, tileUrl) {
+  $.mosaic.addTile = function (type, value, url) {
+    var helper, width, tile;
+
     // Set dragging state
     $.mosaic.options.panels.addClass("mosaic-panel-dragging mosaic-panel-dragging-new");
 
-    // Add helper
-    $($.mosaic.options.panels.get(0)).append(
-      $($.mosaic.document.createElement("div"))
-        .addClass("mosaic-grid-row")
-        .append($($.mosaic.document.createElement("div"))
-          .addClass("mosaic-grid-cell mosaic-width-half mosaic-position-leftmost")
+    // Ensure grid cell
+    if ($.mosaic.options.panels.find('.mosaic-grid-row:not(.mosaic-empty-row) .mosaic-grid-cell').length === 0) {
+      $.mosaic.options.panels.filter('[data-panel="content"]').append(
+        $($.mosaic.document.createElement("div"))
+          .addClass("mosaic-grid-row")
           .append($($.mosaic.document.createElement("div"))
-            .addClass("movable removable mosaic-tile mosaic-" + type + "-tile")
-            .append($($.mosaic.document.createElement("div"))
-              .addClass("mosaic-tile-content").attr('data-tileUrl', tileUrl && tileUrl.replace(/&/gim, '&amp;'))
-              .html(value)
-            )
-            .addClass("mosaic-helper-tile mosaic-helper-tile-new mosaic-original-tile")
-          )
-        )
-    );
+            .addClass("mosaic-grid-cell mosaic-width-half mosaic-position-leftmost")));
+    }
+    if ($.mosaic.options.panels.find('.mosaic-grid-row:not(.mosaic-empty-row) .mosaic-grid-cell').length === 0) {
+      $($.mosaic.options.panels.get(0)).append(
+        $($.mosaic.document.createElement("div"))
+          .addClass("mosaic-grid-row")
+          .append($($.mosaic.document.createElement("div"))
+            .addClass("mosaic-grid-cell mosaic-width-half mosaic-position-leftmost")));
+    }
+    
+    // Add helper
+    $($.mosaic.options.panels.find('.mosaic-grid-row:not(.mosaic-empty-row) .mosaic-grid-cell').get(0)).append(
+      $($.mosaic.document.createElement("div"))
+        .addClass("movable removable mosaic-tile mosaic-" + type + "-tile")
+        .append($($.mosaic.document.createElement("div"))
+          .addClass("mosaic-tile-content").attr('data-tileurl', url && url.replace(/&/gim, '&amp;'))
+          .html(value))
+        .addClass("mosaic-helper-tile mosaic-helper-tile-new mosaic-original-tile"));
 
     // Set helper min size
-    var helper = $.mosaic.options.panels.find(".mosaic-helper-tile-new");
+    helper = $.mosaic.options.panels.find(".mosaic-helper-tile-new");
 
-    // Get max width
-    var width = 0;
+    // Get width
+    width = 0;
     $.mosaic.options.panels.each(function () {
       if ($(this).width() > width) {
         width = $(this).width();
@@ -1564,10 +1584,12 @@ define([
       helper.width(helper.width());
     }
 
-    var tile = new Tile(helper);
+    // Create tile
+    tile = new Tile(helper);
     tile.initialize();
     tile.cacheHtml();
     tile.scanRegistry();
+    return tile;
   };
 
   /**
@@ -1658,9 +1680,15 @@ define([
     // Loop through panels
     $("[data-panel]", $.mosaic.document).each(function () {
 
+      // Skip static panels with configurable tiles, but without layout
+      if ($(this).find('.mosaic-grid-row').length === 0 &&
+          $(this).find('.mosaic-tile').length > 0) {
+        return;
+      }
+
       // Add open panel tag
-      body += '    <div data-panel="' + $(this).data("panel") + '"';
-      body += '         data-max-columns="' + $(this).data("max-columns") + '">\n';
+      body += '    <div data-panel="' + $(this).attr("data-panel") + '"\n';
+      body += '         data-max-columns="' + $(this).attr("data-max-columns") + '">\n';
 
       // Loop through rows
       $(this).children(".mosaic-grid-row").each(function () {
@@ -1725,6 +1753,12 @@ define([
 
             // Loop through tiles
             $(this).children(".mosaic-tile").each(function () {
+
+              // Do not save unplaced helper tiles
+              if ($(this).hasClass('mosaic-helper-tile-new')) {
+                return;
+              }
+
               var tile = new Tile(this);
               body += tile.getHtmlBody(exportLayout);
             });
