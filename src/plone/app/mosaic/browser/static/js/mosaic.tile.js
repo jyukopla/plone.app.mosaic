@@ -509,11 +509,6 @@ define([
         self.$el.addClass('mosaic-read-only-tile');
       }
 
-      // Init rich text
-      if (self.isRichText()) {
-        self.setupWysiwyg();
-      }
-
       // Add border
       self.$el.prepend(
         $($.mosaic.document.createElement("div"))
@@ -540,6 +535,11 @@ define([
                            .removeClass('mosaic-tile')
                            .removeClass('mosaic-tile-loading')
                            .addClass("mosaic-tile-content"));
+      }
+
+      // Init rich text
+      if (self.isRichText()) {
+        self.setupWysiwyg();
       }
 
       // Init interaction
