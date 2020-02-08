@@ -1068,6 +1068,7 @@ define([
           $textarea.val(content);
           if (editor && editor.parser) {
             editor.setContent(content);
+            editor.undoManager.clear();
           }
           break;
         }
@@ -1264,6 +1265,7 @@ define([
               }, 100);
             }
             placeholder(true);
+            that.tinymce.undoManager.clear();
           });
         }
       }}));
