@@ -309,18 +309,46 @@ define([
   };
 
   $.mosaic.__initPanels = function ($content, $layout, callback) {
-    var panels = {};
+    var i, keys, panels = {};
 
     // Drop panels within panels (only the top level panels are editable)
     $('[data-panel] [data-panel]', $content).removeAttr('data-panel');
     $('[data-panel] [data-panel]', $.mosaic.document).removeAttr('data-panel');
 
-    // Initialize found panels from content
-    $content.find("[data-panel]").each(function () {
-      var panel = new Panel(this);
-      panel.initialize($content);
-      panels[$(this).attr('data-panel')] = panel;
+    // Collect old panels for transferring content to new panels
+    var oldPanels = {}
+    $($.mosaic.getPageContent()).filter("[data-panel]").each(function () {
+      if ($(this).children().length > 0) {
+        oldPanels[$(this).attr('data-panel')] = this;
+        $.mosaic.setSelectedContentLayout('');
+      }
     });
+
+    // Merge old panels with panels from content
+    $content.find("[data-panel]").each(function () {
+      panels[$(this).attr('data-panel')] = this;
+      if (oldPanels[$(this).attr('data-panel')]) {
+        $(panels[$(this).attr('data-panel')]).children().remove();  // clear panel
+        $(panels[$(this).attr('data-panel')]).append($(oldPanels[$(this).attr('data-panel')]).children());
+        delete oldPanels[$(this).attr('data-panel')];
+      }
+    });
+    keys = Object.keys(oldPanels);
+    for (i = 0; i < keys.length; i++) {
+        if (panels["content"]) {
+            $(panels["content"]).append($(oldPanels[keys[i]]).children());
+        } else {
+            $(panels[keys[0]]).append($(oldPanels[keys[i]]).children());
+        }
+    }
+
+    // Initialize found panels from content
+    keys = Object.keys(panels);
+    for (var i = 0; i < keys.length; i++) {
+        var panel = new Panel(panels[keys[i]]);
+        panel.initialize($content);
+        panels[keys[i]] = panel;
+    }
 
     // Initialize rest of the panels from layout
     $layout.find("[data-panel]").each(function () {

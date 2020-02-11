@@ -1910,7 +1910,7 @@ define([
 
       // Add open panel tag
       body += '    <div data-panel="' + $(this).attr("data-panel") + '"\n';
-      body += '         data-max-columns="' + $(this).attr("data-max-columns") + '">\n';
+      body += '         data-max-columns="' + ($(this).attr("data-max-columns") || 4) + '">\n';
 
       $(this).children().each(function () {
         if ($(this).hasClass("mosaic-grid-row")){
